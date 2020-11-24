@@ -948,7 +948,3 @@ components:
         appContext:
           type: string
           description: "additional context to share with a linked SMART app"
-servers:
-  # Added by API Auto Mocking Plugin
-  - description: SwaggerHub API Auto Mocking
-    url: https://virtserver.swaggerhub.com/rajshruti/pdspi-guidance-demo-doac/1

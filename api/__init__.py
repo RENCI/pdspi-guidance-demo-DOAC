@@ -13,11 +13,13 @@ config = {
     "piid": "pdspi-guidance-demo-DOAC",
     "pluginType": "g",
     "settingsDefaults": {
-            "pluginSelectors": [ {
-            "title": "FHIR URI - an URL (locator) or an URN (unique name)",
-                "selectorValue": {
-                "value": "http://hapi.fhir.org/baseR4",
-                "title": "Happy FHIR base url" }
+        "pluginSelectors": [ {
+            "title": "Drug",
+            "id": "dosing.rxCUI",
+            "selectorValue": {
+                "value": "rxCUI:1596450",
+                "title": "Gentamicin"
+            }
         } ],
         "modelParameters": [
         {
@@ -140,43 +142,4 @@ def get_config():
 
 
 def get_guidance(body):
-    def extract(var, attr, type="patientVariables"):
-        return var.get(attr, next(filter(lambda rpv: rpv["id"] == var["id"], config["settingsDefaults"][type]))[attr])
-
-    inputs = []
-    age = None
-    weight = None
-    bmi = None
-    dose = None
-    tau = None
-    num_cycles = None
-    ret_input = {}
-    input_dose = None
-    input_tau = None
-    input_num_cycles = None
-    ret_guidance = []
-    for body_item in body:
-        for var in body_item['settingsRequested']["patientVariables"]:
-            if var['id'] == 'LOINC:30525-0':
-                age = var["variableValue"]['value']
-            elif var['id'] == 'LOINC:29463-7':
-                weight = var["variableValue"]['value']
-            elif var['id'] == 'LOINC:39156-5':
-                bmi = var["variableValue"]['value']
-            inputs.append({
-                "id": var["id"],
-                "title": extract(var, "title"),
-                "how": var["how"],
-                "why": extract(var, "why"),
-                "variableValue": var["variableValue"],
-                "legalValues": extract(var, "legalValues"),
-                "timestamp": var.get("timestamp", "2020-02-18T18:54:57.099Z")
-            })
-
-        ret_guidance.append({
-            **guidance,
-            "settingsRequested": body_item['settingsRequested'],
-            "settingsUsed": {'patientVariables': inputs,
-                              'modelParameters': ret_input}
-        })
-    return ret_guidance
+    return guidance

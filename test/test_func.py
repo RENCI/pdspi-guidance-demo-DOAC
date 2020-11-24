@@ -13,8 +13,8 @@ json_post_headers = {
 
 
 config = {
-    "title": "Aminoglycoside dosing guidance",
-    "piid": "pdspi-guidance-demo-doac",
+    "title": "Guidance demo DOAC plugin",
+    "piid": "pdspi-guidance-demo-DOAC",
     "pluginType": "g",
     "settingsDefaults": {
         "pluginSelectors": [ {
@@ -25,52 +25,45 @@ config = {
                 "title": "Gentamicin"
             }
         } ],
-        "modelParameters": [ {
-            "id": "pdspi-guidance-demo-doac:1",
-            "title": "Extended interval nomogram",
-            "parameterDescription": "This calculator uses one of four extended-interval nomograms. Please choose one nomogram.",
-            "parameterValue": { "value": "Hartford" },
-            "legalValues": {
-                "type": "string",
-                "enum": [ "Hartford", "Urban-Craig", "Conventional A", "Conventional B" ] }
-        },
+        "modelParameters": [
         {
-            "id": "oid-6:dose",
-            "title": "Dose",
-            "parameterDescription": "Dose in mg unit for computing concentration graph",
-            "parameterValue": {"value": 180},
-            "legalValues": {"type": "number", "minimum": "120", "maximum": "240"}
-        },
-        {
-            "id": "oid-6:tau",
-            "title": "Frequency",
-            "parameterDescription": "Dose frequency in hour unit for computing concentration graph",
-            "parameterValue": {"value": 12},
-            "legalValues": {"type": "number", "minimum": "8", "maximum": "16"}
-        },
-        {
-            "id": "oid-6:num_cycles",
-            "title": "Number of cycles",
-            "parameterDescription": "Number of cycles in concentration graph",
-            "parameterValue": {"value": 6},
-            "legalValues": {"type": "number", "minimum": "4", "maximum": "8"}
-        } ],
+         "id": "current-time",
+         "parameterDescription": "Compute variables relevant to this timestamp.",
+         "parameterValue": { "value": "2019-09-20T00:00:01Z" },
+         "legalValues": { "type": "string", "format": "time-stamp" }
+        }],
         "patientVariables": [ {
             "id": "LOINC:30525-0",
             "title": "Age",
-            "legalValues": { "type": "number", "minimum": "0" },
-            "why": "Age is used to calculate the creatinine clearance. Dosing is lower for geriatric patient and contraindicated for pediatric patients"
+            "variableDescription": "Fractional age of patient relative to [current-time].",
+            "legalValues": { "type": "number", "minimum": "0" }
         }, {
-            "id": "LOINC:29463-7",
-            "title": "Weight",
-            "legalValues": { "type": "number", "minimum": "0" },
-            "why": "Weight is used to calculate the creatinine clearance. Dosing is higher for patients with higher weight"
+            "id": "1114195.extant",
+            "title": "Rivoroxaban, extant",
+            "variableDescription": "Dosing of rivoroxaban, based on the finding of any rxnorm codes found on the record that map to rxCUI 1114195.",
+            "legalValues": { "type": "number" }
         }, {
-            "id": "LOINC:39156-5",
-            "title": "BMI",
-            "legalValues": { "type": "number", "minimum": "0" },
-            "why": "BMI is used to calculate the creatinine clearance. Dosing is higher for patients with higher BMI"
-        }]
+            "id": "1114195.intensity",
+            "title": "Rivoroxaban, dosage",
+            "variableDescription": "Dosing of rivoroxaban.",
+            "legalValues": { "type": "number", "minimum": 0  }
+        }, {
+            "id": "HP:0001892.extant.days",
+            "title": "Bleeding, days since",
+            "variableDescription": "Days since the last bleeding event, relative to current-time. A value < -age means never. Bleeding events are identified by one of 50 ICD10 codes or 42 ICD9 codes.",
+            "legalValues": { "type": "number" }
+        }, {
+            "id": "HP:0000077.extant.boolean",
+            "title": "Kidney dysfunction, extant",
+            "variableDescription": "If true, then Kidney dysfunction was found in the record for the patient, relative to current-time.",
+            "legalValues": { "type": "boolean" }
+        }, {
+            "id": "1114195.extant.count",
+            "title": "Rivoroxaban dosing count",
+            "variableDescription": "Number of times patient was dosed with Rivoroxaban.",
+            "legalValues": { "type": "number" }
+           }
+        ]
     }
 }
 
@@ -105,6 +98,50 @@ guidance_input = [{
     }
 }]
 
+guidance = {
+    "piid": "pdspi-guidance-demo-DOAC",
+    "patientId": "38",
+    "settingsRequested": {
+      "timestamp": "2019-12-03T13:41:09.942+00:00",
+      "modelParameters": [ {
+                            "id": "pdspi-guidance-demo-DOAC:1",
+                            "title": "Extended interval nomogram",
+                            "parameterDescription": "This calculator uses one of four extended-interval nomograms. Please choose one nomogram.",
+                            "parameterValue": { "value": "Hartford" }
+                         } 
+                       ],
+      "patientVariables": [ {
+                            "id": "LOINC:30525-0",
+                            "title": "Age",
+                            "variableValue": {
+                            "value": "0.5",
+                            "units": "years"
+                            },
+                            "how": "The value was specified by the end user."
+                          }, 
+                          {
+                            "id": "LOINC:39156-5",
+                            "title": "BMI",
+                            "variableValue": {
+                                            "value": "0.5",
+                                            "units": "kg/m^2"
+                            },
+                            "how": "The value was specified by the end user."
+                           } 
+                      ]
+    }
+}
+
 
 def test_config():
-    assert 1==1 
+    response = requests.get("http://pdspi-guidance-demo-doac:8080/config", headers=json_headers) 
+    assert response.status_code == 200
+    assert response.json() == config
+
+def test_guidance():
+    response = requests.post("http://pdspi-guidance-demo-doac:8080/guidance", headers=json_headers, json=guidance_input)
+    assert response.status_code == 200
+    assert response.json() == guidance
+
+
+
