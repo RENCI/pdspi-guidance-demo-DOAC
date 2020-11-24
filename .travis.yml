@@ -3,7 +3,7 @@ services:
 
 branches:
   only:
-    - master
+    - main
 
 script:
   - /bin/bash hooks/test
