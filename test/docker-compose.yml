@@ -5,6 +5,10 @@ services:
     build:
       context: test
     command: ["-s", "-vv", "-x"]
+    environment:
+      PDS_HOST: $PDS_HOST
+      PDS_PORT: $PDS_PORT
+      PDS_VERSION: $PDS_VERSION
     depends_on:
       - pdspi-guidance-demo-doac
 

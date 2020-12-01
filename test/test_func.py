@@ -1,4 +1,5 @@
 import requests
+import os
 
 
 json_headers = {
@@ -24,7 +25,14 @@ config = {
                 "value": "rxCUI:1596450",
                 "title": "Gentamicin"
             }
-        } ],
+        },
+        {
+            "title": "Drug",
+            "id": "dosing.rxCUI",
+            "selectorValue": {
+                "value":"rxCUI:1114195"
+            }
+        }  ],
         "modelParameters": [
         {
          "id": "current-time",
@@ -133,13 +141,15 @@ guidance = {
 }
 
 
+port = str(os.environ['PDS_PORT'])
+
 def test_config():
-    response = requests.get("http://pdspi-guidance-demo-doac:8080/config", headers=json_headers) 
+    response = requests.get("http://pdspi-guidance-demo-doac:"+port+"/config", headers=json_headers) 
     assert response.status_code == 200
     assert response.json() == config
 
 def test_guidance():
-    response = requests.post("http://pdspi-guidance-demo-doac:8080/guidance", headers=json_headers, json=guidance_input)
+    response = requests.post("http://pdspi-guidance-demo-doac:"+port+"/guidance", headers=json_headers, json=guidance_input)
     assert response.status_code == 200
     assert response.json() == guidance
 

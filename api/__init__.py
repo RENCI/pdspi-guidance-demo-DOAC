@@ -20,7 +20,14 @@ config = {
                 "value": "rxCUI:1596450",
                 "title": "Gentamicin"
             }
-        } ],
+        },
+        {
+            "title": "Drug",
+            "id": "dosing.rxCUI",
+            "selectorValue": {
+                "value":"rxCUI:1114195"
+            }
+        }  ],
         "modelParameters": [
         {
          "id": "current-time",
